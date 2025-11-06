@@ -16,11 +16,10 @@ if (!gl) {
 
 // EXPLAIN Shaders
 const vsSource = `
-    // attribute vec2 a_position; // DEMO4
+    attribute vec2 a_position; // DEMO4
     void main() {
         gl_Position = vec4(0.0, 0.0, 0.0, 1.0); // DEMO2
-        gl_PointSize = 20.0; // DEMO3
-
+        gl_PointSize = 10.0; // DEMO3
         // gl_Position = vec4(a_position, 0.0, 1.0); // DEMO4
     }
 `;
@@ -28,7 +27,16 @@ const vsSource = `
 const fsSource = `
     precision mediump float;
     void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        // float x = gl_PointCoord.x;
+        // float y = gl_PointCoord.y;
+        // if (x + y < 0.5){ // draw on board
+        // if (x*x + y*y < 0.25){ // draw on board
+        // if ((x-0.5)*(x-0.5) + (y-0.5)*(y-0.5) < 0.25){ // draw on board
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        // } else {
+            // discard;
+        // }
+
     }
 `;
 
@@ -64,9 +72,9 @@ function createProgram(vsSrc, fsSrc) {
 const program = createProgram(vsSource, fsSource);
 gl.useProgram(program);
 
-// const aPosLoc = gl.getAttribLocation(program, "a_position"); // DEMO4
+const aPosLoc = gl.getAttribLocation(program, "a_position");
 
-function render() {
+function render(t) {
   // Setting drawing area or 'viewport'
   gl.viewport(0, 0, canvas.width, canvas.height);
   // gl.viewport(0, 0, canvas.width / 2, canvas.height); //DEMO0
@@ -76,14 +84,23 @@ function render() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // draw a single point
-  // gl.vertexAttrib2f(aPosLoc, 0.5, 0.0); // DEMO4
+  gl.vertexAttrib2f(aPosLoc, 0.0, 0.0);
+  // DEMO4
+  // gl.vertexAttrib2f(aPosLoc, Math.sin(t / 500), 0.0);
+  // gl.vertexAttrib2f(aPosLoc, 0.9 * Math.sin(t / 1000), 0.3 * Math.cos(t / 400));
   gl.drawArrays(gl.POINTS, 0, 1);
   // DEMO5
   // for (let i = 0; i < 100; i++) {
-  //   gl.vertexAttrib2f(aPosLoc, Math.random(), Math.random());
+  //   gl.vertexAttrib2f(
+  //     aPosLoc,
+  //     Math.sin(i / 100 + t / 300),
+  //     Math.cos(i / 200 + t / 300),
+  //   );
   //   gl.drawArrays(gl.POINTS, 0, 1);
   // }
+  // DEMO animation
+  // window.requestAnimationFrame(render);
 }
 
 // EXPLAIN where all the drawing happens
-render();
+render(0);

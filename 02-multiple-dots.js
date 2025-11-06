@@ -65,24 +65,23 @@ gl.useProgram(program);
 //put data in buffer
 // vertices -- a flat float32 array representing xy coordinates of three dots
 // EXPLAIN
-const vertices = new Float32Array([0.0, 0.0, 0.5, 0.0, 0.0, 0.3]);
-// const vertices = new Float32Array(
-//   Array(240)
-//     .fill(0.0)
-//     .map((d, i) => [Math.cos(i / 40), Math.sin(i / 40)])
-//     .flat(),
-// );
+// const vertices = new Float32Array([0.0, 0.0, 0.5, 0.0, 0.0, 0.3]);
+const sqrt3 = Math.sqrt(3);
+const r = 0.5; // radius of an equilateral triangle
+const vertices = new Float32Array([0, 0, 0.5, 0, 0, 0.3]);
+// const vertices = new Float32Array([ r * sqrt3, -r / 2, 0, r, -r * sqrt3, -r / 2, ]);
+// const vertices = new Float32Array( Array(240) .fill(0.0) .map((d, i) => [Math.cos(i / 40), Math.sin(i / 40)]) .flat());
 // const colors = new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
 
 // EXPLAIN - create buffer object in GPU and upload vertices data into the buffer
-const posBuffer = gl.createBuffer();
+const posBuffer = gl.createBuffer(); //figures
 gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 // link vertices data to the the position attribute, "a_position", in shader
 const aPosLoc = gl.getAttribLocation(program, "a_position");
 gl.enableVertexAttribArray(aPosLoc);
 gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 0, 0);
-//EXPLAIN - Question: how does gl associate a_position with the uploaded vertices data? (figure)
+//EXPLAIN - Question: how does gl associate a_position with the uploaded vertices data in the buffer? (figure)
 
 // [option 1] set up global, uniform "u_color"
 const uColor = gl.getUniformLocation(program, "u_color");
@@ -108,29 +107,14 @@ function render(t) {
   // set the dot color uniform (RGBA). e.g., Red
   gl.uniform4f(uColor, 1.0, 0.0, 0.0, 1.0); // DEMO1 try #0055ff
 
-  // draw three dots
-  gl.drawArrays(gl.POINTS, 0, 3);
-  // gl.drawArrays(gl.POINTS, 0, Math.floor(vertices.length / 2));
   // gl.drawArrays(mode, first, count)
-  //     Execute a vertex shader to draw shapes specified by the mode parameter.
-  //     Parameters
-  //         mode - Specifies the type of shape to be drawn.
-  //             The following symbolic constants are accepted:
-  //                 gl.POINTS,
-  //                 gl.LINES, gl.LINE_STRIP, gl.LINE_LOOP,
-  //                 gl.TRIANGLES, gl.TRIANGLE_STRIP, and gl.TRIANGLE_FAN.
-  //         first - Specifies which vertex to start drawing from (integer).
-  //         count - Specifies the number of vertices to be used (integer).
-  //     Return value
-  //         None
-  //     Errors
-  //         INVALID_ENUM mode is none of the preceding values.
-  //         INVALID_VALUE first is negative or count is negative.
+  gl.drawArrays(gl.POINTS, 0, 3); // draw three dots
+  // gl.drawArrays(gl.POINTS, 0, Math.floor(vertices.length / 2));
 
   // gl.drawArrays(gl.TRIANGLES, 0, 3); // DEMO
-  // gl.drawArrays(gl.POINTS, 0, 2); // DEMO
-  // gl.drawArrays(gl.POINTS, 1, 2); // DEMO
-  // gl.drawArrays(gl.POINTS, 2, 1); // DEMO
+  // gl.drawArrays(gl.POINTS, 0, 2);
+  // gl.drawArrays(gl.POINTS, 1, 2);
+  // gl.drawArrays(gl.POINTS, 2, 1);
   // gl.drawArrays(gl.POINTS, 1, 3); // DEMO NOTE ERROR going out-of-bound, see warning in brower debug console
 
   // DEMO animation
