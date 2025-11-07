@@ -1,5 +1,6 @@
-// EXPLAIN set up a canvas
+// Set up canvas
 const canvas = document.getElementById("glcanvas");
+
 // [optional] handle high-density display via devicePixelRatio
 // const dpr = window.devicePixelRatio || 1;
 // console.log(`Canvas w and h: ${canvas.clientWidth} x ${canvas.clientHeight}`);
@@ -8,39 +9,43 @@ const canvas = document.getElementById("glcanvas");
 // canvas.width = Math.floor(canvas.clientWidth * dpr);
 // canvas.height = Math.floor(canvas.clientHeight * dpr);
 
-// EXPLAIN get gl context
+// Get gl context
 const gl = canvas.getContext("webgl");
 if (!gl) {
   console.error("WebGL not supported");
 }
 
-// EXPLAIN Shaders
+// Shaders
 const vsSource = `
-    attribute vec2 a_position; // DEMO4
+    attribute vec2 a_position; 
     void main() {
-        gl_Position = vec4(0.0, 0.0, 0.0, 1.0); // DEMO2
-        gl_PointSize = 10.0; // DEMO3
-        // gl_Position = vec4(a_position, 0.0, 1.0); // DEMO4
+        // gl_Position = vec4(0.0, 0.0, 0.0, 1.0); // hard-coded position
+        gl_Position = vec4(a_position, 0.0, 1.0); 
+        gl_PointSize = 20.0; 
     }
 `;
 
 const fsSource = `
     precision mediump float;
     void main() {
+        gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+        // // custom point shape and color
         // float x = gl_PointCoord.x;
         // float y = gl_PointCoord.y;
-        // if (x + y < 0.5){ // draw on board
-        // if (x*x + y*y < 0.25){ // draw on board
-        // if ((x-0.5)*(x-0.5) + (y-0.5)*(y-0.5) < 0.25){ // draw on board
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        // float d = distance(vec2(x,y), vec2(0.5,0.5));
+        // if (d < 0.5){ 
+        //     gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+        //     // try this:
+        //     // float d2 = distance(vec2(x,y), vec2(0.7,0.3));
+        //     // float c = pow(1.0-d2, 2.0);
+        //     // gl_FragColor = vec4(c, c, 0.0, 1.0);
         // } else {
-            // discard;
+        //     discard;
         // }
-
     }
 `;
 
-// EXPLAIN  Shader utility functions
+//Shader and gl program utility functions
 function compileShader(src, type) {
   const s = gl.createShader(type);
   gl.shaderSource(s, src);
@@ -68,39 +73,44 @@ function createProgram(vsSrc, fsSrc) {
   return p;
 }
 
-// EXPLAIN program == vert_shader + frag_shader
+// program == vert_shader + frag_shader
 const program = createProgram(vsSource, fsSource);
 gl.useProgram(program);
 
+// static variables for rendering
 const aPosLoc = gl.getAttribLocation(program, "a_position");
 
 function render(t) {
+  console.log(`render(t=${t})`);
   // Setting drawing area or 'viewport'
   gl.viewport(0, 0, canvas.width, canvas.height);
-  // gl.viewport(0, 0, canvas.width / 2, canvas.height); //DEMO0
 
   //clear the canvas
-  gl.clearColor(0.0, 0.0, 0.0, 1.0); // Black DEMO1
+  gl.clearColor(0.1, 0.1, 0.1, 1.0); // background color
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // draw a single point
   gl.vertexAttrib2f(aPosLoc, 0.0, 0.0);
-  // DEMO4
+  // now you try: set a_position to (0.5, 0.0)
+  // gl.vertexAttrib2f(aPosLoc, 0.5, 0.0);
+
+  // draw a single point
+  gl.drawArrays(gl.POINTS, 0, 1);
+
+  // DEMO4:
   // gl.vertexAttrib2f(aPosLoc, Math.sin(t / 500), 0.0);
   // gl.vertexAttrib2f(aPosLoc, 0.9 * Math.sin(t / 1000), 0.3 * Math.cos(t / 400));
-  gl.drawArrays(gl.POINTS, 0, 1);
-  // DEMO5
+  //
+  // DEMO5: multiple points via a for loop
   // for (let i = 0; i < 100; i++) {
   //   gl.vertexAttrib2f(
   //     aPosLoc,
-  //     Math.sin(i / 100 + t / 300),
-  //     Math.cos(i / 200 + t / 300),
+  //     0.9 * Math.cos(i / 80 + t / 500),
+  //     0.9 * Math.sin(i / 80 + t / 400),
   //   );
   //   gl.drawArrays(gl.POINTS, 0, 1);
   // }
-  // DEMO animation
-  // window.requestAnimationFrame(render);
+  // animation
+  window.requestAnimationFrame(render);
 }
 
-// EXPLAIN where all the drawing happens
-render(0);
+render(0); // where the drawing happens

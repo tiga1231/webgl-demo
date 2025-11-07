@@ -11,21 +11,22 @@ if (!gl) {
 const vsSource = `
     attribute vec2 a_position; // EXPLAIN
     attribute vec3 a_color; 
-    // varying vec3 v_color; 
+    varying vec3 v_color; 
     void main() {
         gl_Position = vec4(a_position, 0.0, 1.0);
         gl_PointSize = 12.0; 
-        // v_color = a_color;
+        v_color = a_color;
     }
 `;
 
 const fsSource = `
     precision mediump float;
     uniform vec4 u_color; // EXPLAIN
-    // varying vec3 v_color; 
+    varying vec3 v_color; 
     void main() {
-        gl_FragColor = u_color;
-        // gl_FragColor = vec4(v_color, 1.0);
+        // gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        // gl_FragColor = u_color;
+        gl_FragColor = vec4(v_color, 1.0);
     }
 `;
 
@@ -65,13 +66,13 @@ gl.useProgram(program);
 //put data in buffer
 // vertices -- a flat float32 array representing xy coordinates of three dots
 // EXPLAIN
-// const vertices = new Float32Array([0.0, 0.0, 0.5, 0.0, 0.0, 0.3]);
-const sqrt3 = Math.sqrt(3);
-const r = 0.5; // radius of an equilateral triangle
-const vertices = new Float32Array([0, 0, 0.5, 0, 0, 0.3]);
+const vertices = new Float32Array([0.0, 0.0, 0.5, 0.0, 0.0, 0.3]);
+// const sqrt3 = Math.sqrt(3);
+// const r = 0.5; // radius of an equilateral triangle
+// const vertices = new Float32Array([0, 0, 0.5, 0, 0, 0.3]);
 // const vertices = new Float32Array([ r * sqrt3, -r / 2, 0, r, -r * sqrt3, -r / 2, ]);
 // const vertices = new Float32Array( Array(240) .fill(0.0) .map((d, i) => [Math.cos(i / 40), Math.sin(i / 40)]) .flat());
-// const colors = new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
+const colors = new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]);
 
 // EXPLAIN - create buffer object in GPU and upload vertices data into the buffer
 const posBuffer = gl.createBuffer(); //figures
@@ -84,14 +85,14 @@ gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 0, 0);
 //EXPLAIN - Question: how does gl associate a_position with the uploaded vertices data in the buffer? (figure)
 
 // [option 1] set up global, uniform "u_color"
-const uColor = gl.getUniformLocation(program, "u_color");
+// const uColor = gl.getUniformLocation(program, "u_color");
 // // [option 2] set up individual, attribute "a_color"
-// const colBuffer = gl.createBuffer();
-// gl.bindBuffer(gl.ARRAY_BUFFER, colBuffer);
-// gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-// const aColLoc = gl.getAttribLocation(program, "a_color");
-// gl.enableVertexAttribArray(aColLoc);
-// gl.vertexAttribPointer(aColLoc, 3, gl.FLOAT, false, 0, 0);
+const colBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, colBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+const aColLoc = gl.getAttribLocation(program, "a_color");
+gl.enableVertexAttribArray(aColLoc);
+gl.vertexAttribPointer(aColLoc, 3, gl.FLOAT, false, 0, 0);
 
 // --- Render ---
 function render(t) {
@@ -105,13 +106,13 @@ function render(t) {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   // set the dot color uniform (RGBA). e.g., Red
-  gl.uniform4f(uColor, 1.0, 0.0, 0.0, 1.0); // DEMO1 try #0055ff
+  // gl.uniform4f(uColor, 0.0, 0.0, 1.0, 1.0); // DEMO1 try #0055ff
 
   // gl.drawArrays(mode, first, count)
-  gl.drawArrays(gl.POINTS, 0, 3); // draw three dots
+  // gl.drawArrays(gl.POINTS, 0, 3); // draw three dots
   // gl.drawArrays(gl.POINTS, 0, Math.floor(vertices.length / 2));
 
-  // gl.drawArrays(gl.TRIANGLES, 0, 3); // DEMO
+  gl.drawArrays(gl.TRIANGLES, 0, 3); // DEMO
   // gl.drawArrays(gl.POINTS, 0, 2);
   // gl.drawArrays(gl.POINTS, 1, 2);
   // gl.drawArrays(gl.POINTS, 2, 1);
